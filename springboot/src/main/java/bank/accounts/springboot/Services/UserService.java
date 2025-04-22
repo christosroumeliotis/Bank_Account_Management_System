@@ -1,6 +1,5 @@
 package bank.accounts.springboot.Services;
 
-import bank.accounts.springboot.CustomException;
 import bank.accounts.springboot.Entities.User;
 import bank.accounts.springboot.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
