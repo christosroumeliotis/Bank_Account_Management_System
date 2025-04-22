@@ -10,9 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 public class AccountService {
@@ -69,7 +68,60 @@ public class AccountService {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .body(bankAccountsDto);
         }else{
-            throw new RuntimeException("User with id: " + id + "not found!");
+            throw new RuntimeException("User with id: " + id + " not found!");
+        }
+    }
+
+
+    public ResponseEntity<String> addMoney(Long id, BigDecimal amount) {
+
+        if(amount.compareTo(BigDecimal.ZERO) < 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("You cannot add negative amount of money.");
+        }
+
+        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        if(searchedAccount.isPresent()){
+            searchedAccount.get().setBalance(searchedAccount.get().getBalance().add(amount));
+            accountRepository.save(searchedAccount.get());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Bank's account balance with id: " + id + " increased: " + searchedAccount.get().getBalance());
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Bank account with id: " + id + " not found.");
+        }
+
+    }
+
+    public ResponseEntity<String> withdrawMoney(Long id, BigDecimal amount) {
+
+        if(amount.compareTo(BigDecimal.ZERO) < 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("You cannot withdraw negative amount of money.");
+        }
+
+        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        if(searchedAccount.isPresent()){
+            searchedAccount.get().setBalance(searchedAccount.get().getBalance().subtract(amount));
+            accountRepository.save(searchedAccount.get());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Bank's account balance with id: " + id + " is: " + searchedAccount.get().getBalance());
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Bank account with id: " + id + " not found.");
+        }
+    }
+
+    public ResponseEntity<Map<String,BigDecimal>> getBalance(Long id) {
+
+        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        Map<String,BigDecimal> balance = new HashMap<>();
+        if(searchedAccount.isPresent()){
+            balance.put("Balance", searchedAccount.get().getBalance());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(balance);
+        }else{
+            throw new RuntimeException("Account with id: " + id + " not found!");
         }
     }
 }

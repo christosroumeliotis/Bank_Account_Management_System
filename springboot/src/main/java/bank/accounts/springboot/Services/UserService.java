@@ -17,6 +17,10 @@ public class UserService {
 
     public ResponseEntity<String> createNewUser(User user){
 
+        if(user.getUsername()== null || user.getPassword()==null){
+            throw new RuntimeException("Username and Password cannot be null!");
+        }
+
         String username = user.getUsername();
         Optional<User> searchedUser = userRepository.findByUsername(username);
 
@@ -34,6 +38,10 @@ public class UserService {
     }
 
     public ResponseEntity<String> updateUser(Long id, User user) {
+
+        if(user.getUsername()== null || user.getPassword()==null){
+            throw new RuntimeException("Username and Password cannot be null!");
+        }
 
         Optional<User> searchedUser = userRepository.findById(id);
         if(searchedUser.isPresent()){
