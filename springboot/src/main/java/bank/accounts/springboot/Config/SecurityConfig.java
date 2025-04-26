@@ -4,6 +4,7 @@ import bank.accounts.springboot.Services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,7 +31,9 @@ public class SecurityConfig {
 
         return http
                 .csrf( customizer -> customizer.disable())
-                .authorizeHttpRequests( request -> request.anyRequest().authenticated()) //Enable authorization
+                .authorizeHttpRequests( request -> request
+                        .requestMatchers(HttpMethod.POST, "/user").permitAll()// This endpoint doeant need authentication
+                        .anyRequest().authenticated()) //Enable authorization
                 .formLogin(Customizer.withDefaults()) //Enable Login Form - Web - If I want STATELESS connection I have to configure it and disable the application form for web
                 .httpBasic(Customizer.withDefaults()) //Enable login - Postman
                 .build();
@@ -59,7 +63,7 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider(){ //Make Custom Authentication Provider to connect it with db
 
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        authenticationProvider.setPasswordEncoder(new BCryptPasswordEncoder(12)); //Authenticate using the real password and not the encrypted
         authenticationProvider.setUserDetailsService(myUserDetailsService);
         return authenticationProvider;
     }
