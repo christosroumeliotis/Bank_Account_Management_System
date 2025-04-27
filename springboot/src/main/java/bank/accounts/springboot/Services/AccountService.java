@@ -102,6 +102,10 @@ public class AccountService {
 
         Optional<BankAccount> searchedAccount = accountRepository.findById(id);
         if(searchedAccount.isPresent()){
+            if(amount.compareTo(searchedAccount.get().getBalance())>0){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                        .body("Bank's account balance is lower than +"+amount);
+            }
             searchedAccount.get().setBalance(searchedAccount.get().getBalance().subtract(amount));
             accountRepository.save(searchedAccount.get());
             return ResponseEntity.status(HttpStatus.OK)

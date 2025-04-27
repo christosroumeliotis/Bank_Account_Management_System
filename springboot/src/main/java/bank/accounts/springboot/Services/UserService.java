@@ -24,19 +24,10 @@ public class UserService {
             throw new RuntimeException("Username and Password cannot be null!");
         }
 
-        String username = user.getUsername();
-        Optional<User> searchedUser = userRepository.findByUsername(username);
-
-        if(searchedUser.isPresent()){
-
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .body("User with username: " + username + " already exists.");
-        }else{
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); //Encrypt the password
-            userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                        .body("User with username: " + username + " created and has Id: " + user.getId());
-        }
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); //Encrypt the password
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                        .body("User with username: " + user.getUsername() + " created and has Id: " + user.getId());
 
     }
 
@@ -51,7 +42,7 @@ public class UserService {
 
             User getUser = searchedUser.get();
             getUser.setUsername(user.getUsername());
-            getUser.setPassword(user.getPassword());
+            getUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); //Encrypt the password
             userRepository.save(getUser);
             return ResponseEntity.status(HttpStatus.OK)
                     .body("User with id: " + id + " updated.");
