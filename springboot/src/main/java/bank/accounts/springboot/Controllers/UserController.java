@@ -49,8 +49,8 @@ public class UserController {
     }
 
     @DeleteMapping("/account/{account_id}")
-    public ResponseEntity<String> deleteAccount(@PathVariable Long account_id){
-        return accountService.deleteAccount(account_id);
+    public ResponseEntity<String> deleteAccount(@PathVariable Long account_id, @AuthenticationPrincipal UserPrincipal principal){
+        return accountService.deleteAccount(account_id, principal.getId());
     }
 
     @GetMapping("/accounts")
@@ -59,18 +59,18 @@ public class UserController {
     }
 
     @PutMapping("/account/addmoney/{account_id}")
-    public ResponseEntity<String> addMoney(@PathVariable Long account_id, @RequestBody BigDecimal amount){
-        return accountService.addMoney(account_id, amount);
+    public ResponseEntity<String> addMoney(@PathVariable Long account_id, @RequestBody BigDecimal amount, @AuthenticationPrincipal UserPrincipal principal){
+        return accountService.addMoney(account_id, amount, principal.getId());
     }
 
     @PutMapping("/account/withdraw/{account_id}")
-    public ResponseEntity<String> withdrawMoney(@PathVariable Long account_id, @RequestBody BigDecimal amount){
-        return accountService.withdrawMoney(account_id, amount);
+    public ResponseEntity<String> withdrawMoney(@PathVariable Long account_id, @RequestBody BigDecimal amount, @AuthenticationPrincipal UserPrincipal principal){
+        return accountService.withdrawMoney(account_id, amount, principal.getId());
     }
 
     @GetMapping("/account/balance/{account_id}")
-    public ResponseEntity<Map<String,BigDecimal>> getAccountBalance(@PathVariable Long account_id){
-        return accountService.getBalance(account_id);
+    public ResponseEntity<Map<String,BigDecimal>> getAccountBalance(@PathVariable Long account_id, @AuthenticationPrincipal UserPrincipal principal){
+        return accountService.getBalance(account_id, principal.getId());
     }
 
 

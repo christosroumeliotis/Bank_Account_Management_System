@@ -39,18 +39,18 @@ public class AccountService {
 
     }
 
-    public ResponseEntity<String> deleteAccount(Long id) {
+    public ResponseEntity<String> deleteAccount(Long acount_id, Long user_id) {
 
-        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        Optional<BankAccount> searchedAccount = accountRepository.findAccountByUserAndAccount_Id(user_id, acount_id);
         if(searchedAccount.isPresent()){
 
             accountRepository.delete(searchedAccount.get());
             return ResponseEntity.status(HttpStatus.OK)
-                    .body("Bank account with id: " + id + " deleted.");
+                    .body("Bank account with id: " + acount_id + " deleted.");
         }else{
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Bank account with id: " + id + " not found.");
+                    .body("You don't have bank account with id: " + acount_id);
         }
 
     }
@@ -73,14 +73,14 @@ public class AccountService {
     }
 
 
-    public ResponseEntity<String> addMoney(Long id, BigDecimal amount) {
+    public ResponseEntity<String> addMoney(Long id, BigDecimal amount, Long user_id) {
 
         if(amount.compareTo(BigDecimal.ZERO) < 0){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("You cannot add negative amount of money.");
         }
 
-        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        Optional<BankAccount> searchedAccount = accountRepository.findAccountByUserAndAccount_Id(user_id,id);
         if(searchedAccount.isPresent()){
             searchedAccount.get().setBalance(searchedAccount.get().getBalance().add(amount));
             accountRepository.save(searchedAccount.get());
@@ -88,19 +88,19 @@ public class AccountService {
                     .body("Bank's account balance with id: " + id + " increased: " + searchedAccount.get().getBalance());
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Bank account with id: " + id + " not found.");
+                    .body("You don't have bank account with id: " + id);
         }
 
     }
 
-    public ResponseEntity<String> withdrawMoney(Long id, BigDecimal amount) {
+    public ResponseEntity<String> withdrawMoney(Long id, BigDecimal amount, Long user_id) {
 
         if(amount.compareTo(BigDecimal.ZERO) < 0){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("You cannot withdraw negative amount of money.");
         }
 
-        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        Optional<BankAccount> searchedAccount = accountRepository.findAccountByUserAndAccount_Id(user_id,id);
         if(searchedAccount.isPresent()){
             if(amount.compareTo(searchedAccount.get().getBalance())>0){
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
@@ -109,23 +109,23 @@ public class AccountService {
             searchedAccount.get().setBalance(searchedAccount.get().getBalance().subtract(amount));
             accountRepository.save(searchedAccount.get());
             return ResponseEntity.status(HttpStatus.OK)
-                    .body("Bank's account balance with id: " + id + " is: " + searchedAccount.get().getBalance());
+                    .body("Bank's account balance with id: " + id + " after withdraw has: " + searchedAccount.get().getBalance());
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Bank account with id: " + id + " not found.");
+                    .body("You don't have bank account with id: " + id);
         }
     }
 
-    public ResponseEntity<Map<String,BigDecimal>> getBalance(Long id) {
+    public ResponseEntity<Map<String,BigDecimal>> getBalance(Long id, Long user_id) {
 
-        Optional<BankAccount> searchedAccount = accountRepository.findById(id);
+        Optional<BankAccount> searchedAccount = accountRepository.findAccountByUserAndAccount_Id(user_id, id);
         Map<String,BigDecimal> balance = new HashMap<>();
         if(searchedAccount.isPresent()){
             balance.put("Balance", searchedAccount.get().getBalance());
             return ResponseEntity.status(HttpStatus.OK)
                     .body(balance);
         }else{
-            throw new RuntimeException("Account with id: " + id + " not found!");
+            throw new RuntimeException("Your account with id: " + id + " not found!");
         }
     }
 }
