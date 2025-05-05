@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,9 @@ public class UserService {
         }
 
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword())); //Encrypt the password
+        if(!user.getRole().equals("ROLE_ADMIN")){
+            user.setRole("ROLE_USER");
+        }
         userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED)
                         .body("User with username: " + user.getUsername() + " created and has Id: " + user.getId());
@@ -67,6 +71,10 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("User with id: " + id + " not found!");
         }
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
 

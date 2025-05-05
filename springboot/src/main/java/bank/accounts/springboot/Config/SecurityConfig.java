@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .csrf( customizer -> customizer.disable())
                 .authorizeHttpRequests( request -> request
                         .requestMatchers(HttpMethod.POST, "/user").permitAll()// This endpoint doeant need authentication
+                        .requestMatchers(HttpMethod.GET, "/user/all").hasRole("ADMIN")
                         .anyRequest().authenticated()) //Enable authorization
                 .formLogin(Customizer.withDefaults()) //Enable Login Form - Web - If I want STATELESS connection I have to configure it and disable the application form for web
                 .httpBasic(Customizer.withDefaults()) //Enable login - Postman

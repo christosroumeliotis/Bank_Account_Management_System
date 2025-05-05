@@ -27,6 +27,11 @@ public class UserController {
     @Autowired
     AccountService accountService;
 
+    @GetMapping("/all")
+    public List<User> getAllUsers(@AuthenticationPrincipal UserPrincipal principal) throws Exception {
+        return userService.getAllUsers();
+    }
+
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody User user){
         return userService.createNewUser(user);
