@@ -1,6 +1,7 @@
 package bank.accounts.springboot.Controllers;
 
 import bank.accounts.springboot.Entities.User;
+import bank.accounts.springboot.Services.ExtraFunctionsService;
 import bank.accounts.springboot.Services.UserService;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
@@ -11,15 +12,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/do")
@@ -29,7 +31,9 @@ public class ExtraFuncController {
     @Autowired
     UserService userService;
 
-    //TODO Check the Differencies with CSVWriter and implement it, customize it
+    @Autowired
+    ExtraFunctionsService extraFunctionsService;
+
     @GetMapping("/exportCSV")
     public void exportCSV(HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
 
@@ -49,6 +53,26 @@ public class ExtraFuncController {
         writerToCSV.write(userService.getAllUsers());
     }
 
-    //TODO Send the CSV with email
+    @GetMapping("/excel")   //we will use apache poi
+    public void exportExcel(HttpServletResponse response, @RequestParam String filepath) throws IOException{
+
+        response.setContentType("users/excel");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + filepath + "\"");
+
+        List<User> users = userService.getAllUsers();
+        List<String> columns = new ArrayList<>();
+        columns.add("ID");
+        columns.add("USERNAME");
+        columns.add("ROLE");
+
+        extraFunctionsService.createExcel("users_excel",users,filepath,columns);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().write("Excel written successfully, path: "+filepath+"users_excel.xlsx");
+        response.getWriter().flush();
+    }
+
+
+        //TODO Send the CSV with email
     //TODO Use Sheduled to send every week
 }
