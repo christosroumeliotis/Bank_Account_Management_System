@@ -13,6 +13,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class ExtraFunctionsService {
@@ -20,7 +22,7 @@ public class ExtraFunctionsService {
     @Autowired
     UserService userService;
 
-    public void createExcel(String excelName, List<User> entity, String fileLocation, List<String> columnNames) throws IOException {
+    public void createExcel(String excelName, String fileLocation, List<Map<String, Object>> entityInfo) throws IOException {
         Workbook workbook = new XSSFWorkbook();
 
         //Style
@@ -37,27 +39,42 @@ public class ExtraFunctionsService {
         //Build the excel
         Sheet sheet = workbook.createSheet(excelName);
 
-        Row header = sheet.createRow(0);
+        int rows = 0;
+        Row header = sheet.createRow(rows++);
 
-        for(int i=0 ; i<columnNames.size() ; i++){
-            Cell headerCell = header.createCell(i);
-            headerCell.setCellValue(columnNames.get(i));
-            headerCell.setCellStyle(headerStyle);
-            sheet.autoSizeColumn(i);
+        if(entityInfo.get(0) != null){
+
+            Set keys = entityInfo.get(0).keySet();
+            int counter = 0;
+            for(Object key: keys){
+                Cell headerCell = header.createCell(counter++);
+                headerCell.setCellValue((String) key);
+                headerCell.setCellStyle(headerStyle);
+                sheet.autoSizeColumn(counter);
+            }
+        }else{
+            return;
         }
 
-        for(int i=1 ; i<=entity.size() ; i++){
+        for(int i=0; i<entityInfo.size(); i++){
 
-            Row row = sheet.createRow(i);
+            Row row = sheet.createRow(rows++);
 
-            Cell headerCell = row.createCell(0);
-            headerCell.setCellValue(entity.get(i-1).getId());
+            int counter_values = 0;
+            for(String j : entityInfo.get(i).keySet()){
 
-            headerCell = row.createCell(1);
-            headerCell.setCellValue(entity.get(i-1).getUsername());
-
-            headerCell = row.createCell(2);
-            headerCell.setCellValue(entity.get(i-1).getRole());
+                Cell headerCell = row.createCell(counter_values++);
+                String value = String.valueOf(entityInfo.get(i).get(j));
+                if(value == null){
+                    headerCell.setCellValue(" ");
+                }else{
+                    headerCell.setCellValue(value);
+                    sheet.autoSizeColumn(counter_values);
+                }
+                String cellValue = row.getCell(counter_values)!=null ?
+                        row.getCell(counter_values).getStringCellValue() : "";
+                sheet.setColumnWidth(0, cellValue.length() * 256);
+            }
         }
         try {
 

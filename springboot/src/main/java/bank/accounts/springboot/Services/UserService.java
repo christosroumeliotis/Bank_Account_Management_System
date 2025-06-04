@@ -8,8 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -75,6 +74,22 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<Map<String, Object>> getUsersInformation() {
+
+        List<User> users = getAllUsers();
+        List<Map<String,Object>> usersInfo = new ArrayList<>();
+        for(User user : users){
+            Map<String,Object> info =new HashMap<>();
+            info.put("ROLE",user.getRole());
+            info.put("USERNAME",user.getUsername());
+            info.put("ID",user.getId());
+            usersInfo.add(info);
+        }
+
+        return usersInfo;
+
     }
 }
 
