@@ -1,5 +1,6 @@
 package bank.accounts.springboot.Controllers;
 
+import bank.accounts.springboot.Config.EmailDetails;
 import bank.accounts.springboot.Entities.User;
 import bank.accounts.springboot.Repositories.UserRepository;
 import bank.accounts.springboot.Services.AccountService;
@@ -80,7 +81,14 @@ public class ExtraFuncController {
         response.getWriter().flush();
     }
 
+    @GetMapping("/email")   //Use of spring mail
+    public String exportExcel(@RequestBody EmailDetails emailDetails){
 
-    //TODO Send the CSV with email
+           List<String> recipients = extraFunctionsService.getRecipientsByAction("/do/email");
+           return extraFunctionsService.sendEmailWithAttachments(emailDetails, recipients.toArray(new String[0]));
+    }
+
+
+    //TODO add logs, make the code better and reusable
     //TODO Use Sheduled to send every week
 }
